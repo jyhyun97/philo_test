@@ -25,7 +25,7 @@ int check_input(int argc, char *argv[])
     return (0);
 }
 
-int init_data(int argc, char *argv[], t_data *data)
+int init_data(char *argv[], t_data *data)
 {
     int i;
 
@@ -38,7 +38,12 @@ int init_data(int argc, char *argv[], t_data *data)
         data->must_eat_count = ft_atoi(argv[5]);
     else
         data->must_eat_count = -1;
-    data->death = 0;
+    data->death = (int *)malloc(sizeof(int) * 1);
+    *(data->death) = 0;
+    data->death_mutex = (pthread_mutex_t *)malloc(sizeof(pthread_mutex_t) * 1);
+    pthread_mutex_init(data->death_mutex, 0);
+    data->print = (pthread_mutex_t *)malloc(sizeof(pthread_mutex_t) * 1);
+    pthread_mutex_init(data->print, 0);
     data->fork = (pthread_mutex_t *)malloc(sizeof(pthread_mutex_t) * data->num_of_philo);
     if (data->fork == 0)
         return (1);
@@ -47,7 +52,6 @@ int init_data(int argc, char *argv[], t_data *data)
         pthread_mutex_init(&data->fork[i], 0);    
         ++i;
     }
-    pthread_mutex_init(&data->print, 0);
     return (0);
 }
 
@@ -61,6 +65,8 @@ int init_philo(t_data *data, t_philo *philo)
         philo[i].data = data;
         philo[i].num = i + 1;
         philo[i].eat_count = 0;
+        philo[i].eating = (pthread_mutex_t *)malloc(sizeof(pthread_mutex_t) * 1);
+        pthread_mutex_init(philo[i].eating, 0);    
         philo[i].l_fork = &(data->fork[i]);
         if (i == data->num_of_philo - 1)
             philo[i].r_fork = &(data->fork[0]);
@@ -75,15 +81,15 @@ int init_philo(t_data *data, t_philo *philo)
 
 int init_thread(t_data *data, t_philo *philo)
 {
-    struct timeval  tmp;
     int             i;
 
-    data->start_time = gettimeofday(&tmp, 0);//추후 get_time 함수 만들어서 수정
+    data->start_time = get_time();
     i = 0;
     while (i < data->num_of_philo)
     {
         philo[i].last_eat = data->start_time;
         pthread_create(&(philo[i].thread), NULL, &thread_run, &(philo[i]));
+        pthread_create(&(philo[i].monitor), NULL, &thread_monitor, &(philo[i]));
         //create moniter
         usleep(100);
         ++i;
@@ -92,9 +98,14 @@ int init_thread(t_data *data, t_philo *philo)
     while (i < data->num_of_philo)
     {
         pthread_join(philo[i].thread, NULL);
-        //join moniter
+        pthread_join(philo[i].monitor, NULL);
+        pthread_mutex_destroy(&(data->fork[i]));
+        pthread_mutex_destroy(philo[i].eating);
         i++;
     }
-    printf("goodbye\n");
+    pthread_mutex_destroy(data->print);
+    free(data->fork);
+    free(data->print);
+    free(data->death);
     return (0);
 }

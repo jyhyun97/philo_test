@@ -24,3 +24,36 @@ int ft_atoi(const char *str)
 	}
 	return (rst * pmsign);
 }
+
+unsigned long	get_time(void)
+{
+	struct timeval  tmp;
+	unsigned long	new;
+	
+	gettimeofday(&tmp, 0);	
+	new = tmp.tv_sec * 1000;
+	new += tmp.tv_usec / 1000;
+	//1 second = 1000ms 
+	//1 ms = 1000us
+	return (new);
+}
+
+
+void	print_msg(t_philo *philo, int flag)
+{
+	pthread_mutex_lock(philo->data->print);
+	if (flag == FORK)
+		printf("[%lu] %d has taken a fork\n", get_time() - philo->data->start_time, philo->num);
+	else if (flag == EAT)
+		printf("[%lu] %d is eating\n", get_time() - philo->data->start_time, philo->num);
+	else if (flag == SLEEP)
+    	printf("[%lu] %d is sleeping\n", get_time() - philo->data->start_time, philo->num);	
+    else if (flag == THINK)
+    	printf("[%lu] %d is thinking\n", get_time() - philo->data->start_time, philo->num);
+	else if (flag == DIE)
+	{
+		if (*(philo->data->death) == 1)
+			printf("[%lu] %d is died\n", get_time() - philo->data->start_time, philo->num);
+	}
+	pthread_mutex_unlock(philo->data->print);
+}
