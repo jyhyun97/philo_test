@@ -40,7 +40,6 @@ typedef struct  s_philo
     pthread_t thread;
     pthread_t monitor;
 
-    pthread_mutex_t *eating;
     pthread_mutex_t *l_fork;
     pthread_mutex_t *r_fork;
     t_data  *data;

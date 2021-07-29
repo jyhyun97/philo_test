@@ -65,8 +65,6 @@ int init_philo(t_data *data, t_philo *philo)
         philo[i].data = data;
         philo[i].num = i + 1;
         philo[i].eat_count = 0;
-        philo[i].eating = (pthread_mutex_t *)malloc(sizeof(pthread_mutex_t) * 1);
-        pthread_mutex_init(philo[i].eating, 0);    
         philo[i].l_fork = &(data->fork[i]);
         if (i == data->num_of_philo - 1)
             philo[i].r_fork = &(data->fork[0]);
@@ -75,8 +73,6 @@ int init_philo(t_data *data, t_philo *philo)
         ++i;
     }
     return (0);
-    //1번 0, 1
-    //n번 num_of_philo - 1, 0
 }
 
 int init_thread(t_data *data, t_philo *philo)
@@ -90,7 +86,6 @@ int init_thread(t_data *data, t_philo *philo)
         philo[i].last_eat = data->start_time;
         pthread_create(&(philo[i].thread), NULL, &thread_run, &(philo[i]));
         pthread_create(&(philo[i].monitor), NULL, &thread_monitor, &(philo[i]));
-        //create moniter
         usleep(100);
         ++i;
     }
@@ -100,7 +95,6 @@ int init_thread(t_data *data, t_philo *philo)
         pthread_join(philo[i].thread, NULL);
         pthread_join(philo[i].monitor, NULL);
         pthread_mutex_destroy(&(data->fork[i]));
-        pthread_mutex_destroy(philo[i].eating);
         i++;
     }
     pthread_mutex_destroy(data->print);

@@ -42,15 +42,15 @@ unsigned long	get_time(void)
 void	print_msg(t_philo *philo, int flag)
 {
 	pthread_mutex_lock(philo->data->print);
-	if (*(philo->data->death) != 1 && flag == FORK)
+	if (*(philo->data->death) == 0 && flag == FORK)
 		printf("[%lu] %d has taken a fork\n", get_time() - philo->data->start_time, philo->num);
-	else if (*(philo->data->death) != 1 && flag == EAT)
+	else if (*(philo->data->death) == 0 && flag == EAT)
 		printf("[%lu] %d is eating\n", get_time() - philo->data->start_time, philo->num);
-	else if (*(philo->data->death) != 1 && flag == SLEEP)
+	else if (*(philo->data->death) == 0 && flag == SLEEP)
     	printf("[%lu] %d is sleeping\n", get_time() - philo->data->start_time, philo->num);	
-    else if (*(philo->data->death) != 1 && flag == THINK)
+    else if (*(philo->data->death) == 0 && flag == THINK)
     	printf("[%lu] %d is thinking\n", get_time() - philo->data->start_time, philo->num);
-	else if (*(philo->data->death) != 1 && flag == DIE)
+	else if (flag == DIE)
 	{
 		if (*(philo->data->death) == 1)
 			printf("[%lu] %d is died\n", get_time() - philo->data->start_time, philo->num);
